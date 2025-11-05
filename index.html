@@ -5,18 +5,113 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>💖 Álbum de Recuerdos</title>
   <style>
+    * {
+      box-sizing: border-box;
+      transition: all 0.3s ease;
+    }
+
+    h1 {
+  text-shadow: 0 0 10px #ffb3c6, 0 0 20px #ff80ab;
+}
+
+button:active {
+  transform: scale(0.95);
+}
+
+
+
     body {
       font-family: "Poppins", sans-serif;
-      background: linear-gradient(135deg, #ffe5ec, #fcd2e0);
       margin: 0;
+      padding: 0;
+      color: #333;
+      overflow-x: hidden;
+    }
+
+    body::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.3), transparent 70%);
+  pointer-events: none;
+  mix-blend-mode: screen;
+  animation: shimmer 10s infinite alternate;
+}
+
+@keyframes shimmer {
+  from { opacity: 0.3; }
+  to { opacity: 0.7; }
+}
+
+    /* Fondo difuminado animado */
+    body {
+      background: linear-gradient(135deg, #ffe5ec, #fcd2e0, #ffe6f0);
+      background-size: 400% 400%;
+      animation: gradient 10s ease infinite;
+    }
+
+    @keyframes gradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Pantalla de inicio */
+    #loginScreen {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: linear-gradient(135deg, #ffe5ec, #fcd2e0);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+      text-align: center;
+    }
+
+    #loginScreen h1 {
+      color: #d63384;
+      margin-bottom: 10px;
+      font-size: 2em;
+    }
+
+    #loginScreen input {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin: 10px;
+      width: 200px;
+      text-align: center;
+      font-size: 16px;
+    }
+
+    #loginScreen button {
+      background-color: #d63384;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    #loginScreen button:hover {
+      background-color: #b62d6c;
+    }
+
+    #album {
+      display: none;
       padding: 20px;
       text-align: center;
-      color: #333;
     }
+
     h1 {
       color: #d63384;
       margin-bottom: 10px;
     }
+
     .upload-box {
       background: white;
       border-radius: 20px;
@@ -25,6 +120,7 @@
       margin: 20px auto;
       max-width: 400px;
     }
+
     input, textarea, button {
       margin: 10px;
       padding: 10px;
@@ -33,6 +129,7 @@
       width: 90%;
       font-size: 14px;
     }
+
     button {
       background-color: #d63384;
       color: white;
@@ -40,15 +137,18 @@
       font-weight: bold;
       transition: background 0.3s;
     }
+
     button:hover {
       background-color: #b62d6c;
     }
+
     .gallery {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
       gap: 20px;
       margin-top: 30px;
     }
+
     .card {
       background: white;
       border-radius: 15px;
@@ -57,104 +157,261 @@
       padding-bottom: 10px;
       transition: transform 0.2s;
     }
+
     .card:hover {
       transform: scale(1.02);
     }
+
     img, video {
       width: 100%;
       border-bottom: 2px solid #fcd2e0;
     }
+
     p {
       padding: 10px;
       font-size: 14px;
       color: #444;
     }
+
+    #exportBtn {
+      background-color: #ff80b5;
+      margin-top: 20px;
+      border: none;
+    }
+
+    /* Botón de música flotante */
+    #musicBtn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #d63384;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      font-size: 22px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      z-index: 5;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+
+    @keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#album {
+  animation: fadeUp 1s ease both;
+}
+
+.heart {
+  position: fixed;
+  color: #ff8fab;
+  font-size: 20px;
+  opacity: 0.7;
+  animation: floatHeart 6s linear infinite;
+}
+
+@keyframes floatHeart {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100vh) scale(1.5);
+    opacity: 0;
+  }
+}
+
+
   </style>
 </head>
 <body>
-  <h1>💞 Nuestro Álbum de Recuerdos</h1>
-  <p>Guarda aquí tus fotos, videos y mensajes especiales 💌</p>
 
-  <div class="upload-box">
-    <input type="file" id="fileInput" accept="image/*,video/*"><br>
-    <textarea id="descInput" placeholder="Escribe algo bonito..."></textarea><br>
-    <button id="saveBtn">Guardar Recuerdo</button>
+  <!-- Pantalla de bienvenida -->
+  <div id="loginScreen">
+    <h1>💞 Bienvenido a Nuestro Álbum 💞</h1>
+    <p>Introduce la contraseña para entrar:</p>
+    <input type="password" id="passwordInput" placeholder="••••••••">
+    <button id="enterBtn">Entrar</button>
   </div>
 
-  <div class="gallery" id="gallery"></div>
+  <!-- Contenido del álbum -->
+  <div id="album">
+    <h1>💖 Nuestro Álbum de Recuerdos</h1>
+    <p>Guarda aquí tus fotos, videos y mensajes especiales 💌</p>
 
-  <button id="exportBtn">Descargar álbum 📦</button>
+    <div class="upload-box">
+      <input type="file" id="fileInput" accept="image/*,video/*"><br>
+      <textarea id="descInput" placeholder="Escribe algo bonito..."></textarea><br>
+      <button id="saveBtn">Guardar Recuerdo</button>
+    </div>
+
+    <div class="gallery" id="gallery"></div>
+
+    <button id="exportBtn">Descargar álbum 📦</button>
+  </div>
+
+  <!-- Reproductor de música -->
+  <audio id="bgMusic" loop>
+    <source src="Los Elegantes de Jerez - Tú.mp3" - Tú.mp3 type="audio/mp3">
+  </audio>
+  <button id="musicBtn">🎵</button>
+
+  <script>
+    const loginScreen = document.getElementById('loginScreen');
+    const passwordInput = document.getElementById('passwordInput');
+    const enterBtn = document.getElementById('enterBtn');
+    const album = document.getElementById('album');
+    const bgMusic = document.getElementById('bgMusic');
+    const musicBtn = document.getElementById('musicBtn');
+
+    const CORRECT_PASSWORD = "03/09/25";
+
+enterBtn.addEventListener('click', () => {
+  if (passwordInput.value === CORRECT_PASSWORD) {
+    loginScreen.style.opacity = '0';
+
+    setTimeout(() => {
+      loginScreen.style.display = 'none';
+      album.style.display = 'block';
+      album.style.opacity = '0';
+      setTimeout(() => album.style.opacity = '1', 100);
+
+      // 🔊 Iniciar la música justo después de acceder
+      bgMusic.currentTime = 0; // reinicia por si acaso
+      bgMusic.volume = 0.5; // volumen inicial suave (opcional)
+      bgMusic.play()
+        .then(() => console.log("🎶 Música iniciada correctamente"))
+        .catch(err => console.warn("⚠️ No se pudo reproducir la música:", err));
+    }, 500);
+  } else {
+    alert('Contraseña incorrecta 💔');
+  }
+});
 
 
-<script>
-  const fileInput = document.getElementById('fileInput');
-  const descInput = document.getElementById('descInput');
-  const saveBtn = document.getElementById('saveBtn');
-  const gallery = document.getElementById('gallery');
-  const exportBtn = document.getElementById('exportBtn');
-
-  // Cargar recuerdos guardados
-  const recuerdos = JSON.parse(localStorage.getItem('recuerdos')) || [];
-  mostrarRecuerdos();
-
-  saveBtn.addEventListener('click', () => {
-    const file = fileInput.files[0];
-    const desc = descInput.value.trim();
-
-    if (!file && !desc) return alert('Agrega una descripción o una imagen/video.');
-    if (!file) return alert('Selecciona una imagen o video.');
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const data = {
-        id: Date.now(),
-        url: e.target.result,
-        type: file.type.startsWith('video') ? 'video' : 'image',
-        desc: desc
-      };
-      recuerdos.unshift(data);
-      localStorage.setItem('recuerdos', JSON.stringify(recuerdos));
-      mostrarRecuerdos();
-      descInput.value = '';
-      fileInput.value = '';
-    };
-    reader.readAsDataURL(file);
-  });
-
-  function mostrarRecuerdos() {
-    gallery.innerHTML = '';
-    recuerdos.forEach(r => {
-      const card = document.createElement('div');
-      card.classList.add('card');
-      card.innerHTML = `
-        ${r.type === 'video'
-          ? `<video controls src="${r.url}"></video>`
-          : `<img src="${r.url}" alt="recuerdo">`}
-        <p>${r.desc}</p>
-        <button onclick="borrarRecuerdo(${r.id})">🗑️ Eliminar</button>
-      `;
-      gallery.appendChild(card);
+    // Botón de música flotante
+    let musicPlaying = true;
+    musicBtn.addEventListener('click', () => {
+      if (musicPlaying) {
+        bgMusic.pause();
+        musicBtn.textContent = "🔇";
+      } else {
+        bgMusic.play();
+        musicBtn.textContent = "🎵";
+      }
+      musicPlaying = !musicPlaying;
     });
-  }
 
-  function borrarRecuerdo(id) {
-    const index = recuerdos.findIndex(r => r.id === id);
-    if (index !== -1) {
-      recuerdos.splice(index, 1);
-      localStorage.setItem('recuerdos', JSON.stringify(recuerdos));
-      mostrarRecuerdos();
+    // Álbum de recuerdos
+    const fileInput = document.getElementById('fileInput');
+    const descInput = document.getElementById('descInput');
+    const saveBtn = document.getElementById('saveBtn');
+    const gallery = document.getElementById('gallery');
+
+    const recuerdos = JSON.parse(localStorage.getItem('recuerdos')) || [];
+    mostrarRecuerdos();
+
+    saveBtn.addEventListener('click', () => {
+      const file = fileInput.files[0];
+      const desc = descInput.value.trim();
+
+      if (!file) return alert('Selecciona una imagen o video.');
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        const data = {
+          id: Date.now(),
+          url: e.target.result,
+          type: file.type.startsWith('video') ? 'video' : 'image',
+          desc: desc
+        };
+        recuerdos.unshift(data);
+        localStorage.setItem('recuerdos', JSON.stringify(recuerdos));
+        mostrarRecuerdos();
+        descInput.value = '';
+        fileInput.value = '';
+      };
+
+      reader.readAsDataURL(file);
+    });
+
+    function mostrarRecuerdos() {
+      gallery.innerHTML = '';
+      recuerdos.forEach(r => {
+        const card = document.createElement('div');
+        card.classList.add('card');
+        card.innerHTML = `
+          ${r.type === 'video'
+            ? `<video controls src="${r.url}"></video>`
+            : `<img src="${r.url}" alt="recuerdo">`}
+          <p>${r.desc}</p>
+          <button onclick="borrarRecuerdo(${r.id})">🗑️ Eliminar</button>
+        `;
+        gallery.appendChild(card);
+      });
     }
+
+    function borrarRecuerdo(id) {
+      const index = recuerdos.findIndex(r => r.id === id);
+      if (index !== -1) {
+        recuerdos.splice(index, 1);
+        localStorage.setItem('recuerdos', JSON.stringify(recuerdos));
+        mostrarRecuerdos();
+      }
+    }
+
+    document.getElementById('exportBtn').addEventListener('click', () => {
+      const blob = new Blob([JSON.stringify(recuerdos)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'album_recuerdos.json';
+      a.click();
+    });
+
+    // 🌸 Corazones flotantes
+function crearCorazon() {
+  const heart = document.createElement('div');
+  heart.classList.add('heart');
+  heart.textContent = '💖';
+  heart.style.left = Math.random() * 100 + 'vw';
+  heart.style.animationDuration = (3 + Math.random() * 3) + 's';
+  document.body.appendChild(heart);
+  setTimeout(() => heart.remove(), 6000);
+}
+setInterval(crearCorazon, 1000);
+
+// justo donde haces bgMusic.play()
+bgMusic.volume = 0;
+bgMusic.play();
+let vol = 0;
+const fade = setInterval(() => {
+  if (vol < 0.5) {
+    vol += 0.05;
+    bgMusic.volume = vol;
+  } else {
+    clearInterval(fade);
   }
+}, 200);
 
-  exportBtn.addEventListener('click', () => {
-    const blob = new Blob([JSON.stringify(recuerdos)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'album_recuerdos.json';
-    a.click();
-  });
-</script>
 
+  </script>
 </body>
 </html>
+
+
