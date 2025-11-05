@@ -1,251 +1,420 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>💖 Álbum de Recuerdos</title>
-  <style>
-    body {
-      font-family: "Poppins", sans-serif;
-      background: linear-gradient(135deg, #ffe5ec, #fcd2e0);
-      margin: 0;
-      padding: 0;
-      overflow-x: hidden;
-    }
-    .pantalla-login, .pantalla-album {
-      display: none;
-      text-align: center;
-      padding: 40px;
-      min-height: 100vh;
-    }
-    .pantalla-login.activa, .pantalla-album.activa {
-      display: block;
-    }
-    .login-box {
-      background: white;
-      border-radius: 20px;
-      padding: 30px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      max-width: 400px;
-      margin: 100px auto;
-    }
-    input, textarea, button {
-      margin: 10px;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      width: 90%;
-      font-size: 14px;
-    }
-    button {
-      background-color: #d63384;
-      color: white;
-      cursor: pointer;
-      font-weight: bold;
-      transition: background 0.3s;
-    }
-    button:hover { background-color: #b62d6c; }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>💖 Álbum de Recuerdos - Mejorado</title>
+<style>
+  :root{
+    --pink1:#ffe5ec; --pink2:#fcd2e0; --accent:#d63384;
+    --card:#fff; --text:#333; --muted:#777;
+    --dark-bg1:#0b1220; --dark-bg2:#17202a; --dark-card:#1f2a35; --dark-text:#f0e9f2;
+  }
+  html,body{height:100%; margin:0; font-family:Poppins,Segoe UI,Arial; -webkit-font-smoothing:antialiased;}
+  body{background:linear-gradient(135deg,var(--pink1),var(--pink2)); color:var(--text); transition:background .6s,color .6s;}
+  .container{max-width:1000px;margin:24px auto;padding:12px;}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  h1{margin:6px 0;color:var(--accent)}
+  .controls{display:flex;gap:8px;align-items:center}
+  button{background:var(--accent);color:white;border:0;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:600}
+  button.secondary{background:transparent;color:var(--accent);border:2px solid var(--accent)}
+  .small{font-size:13px;color:var(--muted)}
 
-    h1 { color: #d63384; }
+  /* Welcome screen */
+  #welcome{min-height:60vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px}
+  #typed{font-size:22px;margin-bottom:12px;white-space:pre-wrap}
+  #enterBox{display:flex;gap:8px;align-items:center;justify-content:center}
+  input[type=password]{padding:8px;border-radius:8px;border:1px solid #ccc}
 
-    .gallery {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 20px;
-      margin-top: 30px;
-    }
-    .card {
-      background: white;
-      border-radius: 15px;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-      overflow: hidden;
-      padding-bottom: 10px;
-      transition: transform 0.2s;
-    }
-    .card:hover { transform: scale(1.02); }
-    img, video { width: 100%; border-bottom: 2px solid #fcd2e0; }
-    p { padding: 10px; font-size: 14px; color: #444; }
+  /* Upload / timeline */
+  .upload-box{background:var(--card);border-radius:16px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.06);margin-top:16px}
+  .flexrow{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  .gallery {margin-top:18px}
+  .timeline{position:relative;padding:20px 10px}
+  .timeline::before{content:"";position:absolute;left:20px;top:0;bottom:0;width:4px;background:linear-gradient(#fff0,#fcd2e0);border-radius:4px}
+  .item{margin:18px 0;padding:10px 12px;background:var(--card);border-radius:12px;box-shadow:0 6px 16px rgba(0,0,0,0.06);margin-left:48px;max-width:700px;opacity:0;transform:translateY(10px);transition:all .55s cubic-bezier(.2,.9,.2,1)}
+  .item.visible{opacity:1;transform:none}
+  .item img,.item video{width:100%;border-radius:8px;border-bottom:3px solid #fcd2e0;display:block}
+  .meta{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-top:8px}
+  .desc{font-size:15px;color:var(--text)}
+  .fecha{font-size:12px;color:var(--muted)}
 
-    /* Corazones */
-    .corazon {
-      position: fixed;
-      color: #ff6b9a;
-      font-size: 20px;
-      animation: flotar 5s linear infinite;
-      pointer-events: none;
-      opacity: 0.8;
-    }
-    @keyframes flotar {
-      0% { transform: translateY(100vh) scale(1); opacity: 1; }
-      100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
-    }
+  /* modal (cartas) */
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;z-index:120;visibility:hidden;opacity:0;transition:opacity .2s,visibility .2s}
+  .modal.open{visibility:visible;opacity:1}
+  .modal .cardm{background:var(--card);padding:18px;border-radius:12px;max-width:720px;max-height:80vh;overflow:auto}
 
-    /* Botón de música */
-    #musicBtn {
-      background-color: #ff85b3;
-      position: fixed;
-      top: 15px;
-      right: 15px;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      font-size: 22px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    }
-    #musicBtn:hover { background-color: #ff6b9a; }
-  </style>
+  /* surprise animation */
+  .surpriseAnim{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(.6);z-index:200;pointer-events:none;opacity:0;transition:all .4s}
+  .surpriseAnim.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  .surpriseAnim p{font-size:20px;background:linear-gradient(90deg,#ffd1e4,#ffd9ef);padding:14px;border-radius:14px;box-shadow:0 8px 30px rgba(214,51,132,.12)}
+
+  /* hearts canvas full screen (z-index -1) */
+  canvas#corazones{position:fixed;left:0;top:0;width:100%;height:100%;z-index:-1;pointer-events:none}
+
+  /* dark mode styles */
+  body.dark{background:linear-gradient(135deg,var(--dark-bg1),var(--dark-bg2));color:var(--dark-text)}
+  body.dark .upload-box, body.dark .item, body.dark .cardm{background:var(--dark-card);color:var(--dark-text)}
+  body.dark .timeline::before{background:linear-gradient(#0000,#20324b)}
+
+  /* responsive */
+  @media(max-width:600px){
+    .timeline::before{left:12px}
+    .item{margin-left:40px}
+  }
+</style>
 </head>
 <body>
+<canvas id="corazones"></canvas>
 
-  <!-- PANTALLA DE CONTRASEÑA -->
-  <div class="pantalla-login activa" id="login">
-    <div class="login-box">
-      <h1>🔒 Ingresar al Álbum</h1>
-      <p>Introduce la contraseña para acceder 💞</p>
-      <input type="password" id="passwordInput" placeholder="Contraseña...">
-      <button id="loginBtn">Entrar</button>
-    </div>
+<!-- WELCOME -->
+<section id="welcome" class="container" aria-hidden="false">
+  <div id="typed" aria-live="polite"></div>
+  <div id="enterBox">
+    <input type="password" id="clave" placeholder="Código secreto (ej: 2025love)">
+    <button id="btnEnter">Entrar</button>
   </div>
+  <p class="small" style="margin-top:12px">Pista: <strong>Fecha importante</strong></p>
+</section>
 
-  <!-- PANTALLA DEL ÁLBUM -->
-  <div class="pantalla-album" id="album">
-    <audio id="musica" src="Los Elegantes de Jerez - Tú.mp3" loop></audio>
-    <button id="musicBtn" title="Reproducir / Pausar">🔊</button>
+<!-- MAIN CONTENT -->
+<main id="mainContent" class="container" style="display:none" aria-hidden="true">
+  <header>
+    <div>
+      <h1>💞 Nuestro Álbum de Recuerdos</h1>
+      <div class="small" id="fraseTop"></div>
+    </div>
+    <div class="controls">
+      <button id="themeBtn" class="secondary">🌙 Modo noche</button>
+      <button id="sorpresaBtn">Haz clic si me extrañas 💖</button>
+      <button id="exportBtn">Descargar álbum 📦</button>
+    </div>
+  </header>
 
-    <h1>💞 Nuestro Álbum de Recuerdos</h1>
-    <p>Guarda aquí tus fotos, videos y mensajes especiales 💌</p>
-
-    <div class="upload-box">
-      <input type="file" id="fileInput" accept="image/*,video/*"><br>
-      <textarea id="descInput" placeholder="Escribe algo bonito..."></textarea><br>
+  <section class="upload-box" aria-label="Agregar recuerdo">
+    <div class="flexrow">
+      <input type="file" id="fileInput" accept="image/*,video/*">
+      <textarea id="descInput" placeholder="Escribe algo bonito..." style="width:100%;min-height:60px"></textarea>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
       <button id="saveBtn">Guardar Recuerdo</button>
+      <button id="newLetterBtn" class="secondary">Escribir carta / nota</button>
     </div>
+    <div class="small" style="margin-top:8px">Se guardará en tu navegador (localStorage). Se hará una copia de seguridad automática al guardar.</div>
+  </section>
 
-    <div class="gallery" id="gallery"></div>
-    <button id="exportBtn">Descargar álbum 📦</button>
+  <section class="gallery">
+    <!-- timeline -->
+    <div class="timeline" id="timeline"></div>
+  </section>
+</main>
+
+<!-- Modal para cartas -->
+<div id="modal" class="modal" role="dialog" aria-hidden="true">
+  <div class="cardm">
+    <h3 id="modalTitle">Carta</h3>
+    <div id="modalBody" style="white-space:pre-wrap"></div>
+    <div style="margin-top:12px;text-align:right">
+      <button id="closeModal" class="secondary">Cerrar</button>
+    </div>
   </div>
+</div>
 
-  <script>
-    // --- LOGIN ---
-    const loginDiv = document.getElementById('login');
-    const albumDiv = document.getElementById('album');
-    const passwordInput = document.getElementById('passwordInput');
-    const loginBtn = document.getElementById('loginBtn');
-    const musica = document.getElementById('musica');
-    const musicBtn = document.getElementById('musicBtn');
+<!-- sorpresa -->
+<div id="surprise" class="surpriseAnim"><p id="surpriseText">Te extraño mucho 💖</p></div>
 
-    loginBtn.addEventListener('click', () => {
-      if (passwordInput.value === '03-09-25') {
-        loginDiv.classList.remove('activa');
-        albumDiv.classList.add('activa');
-        musica.play();
-        generarCorazones();
-      } else {
-        alert('Contraseña incorrecta 💔');
-      }
-    });
+<script>
+/* -------------------------
+  Datos y estado
+------------------------- */
+const frases = [
+  "Amar no es mirarse el uno al otro, sino mirar juntos en la misma dirección.",
+  "Eres mi lugar favorito para estar.",
+  "Cada recuerdo contigo es mi recuerdo favorito.",
+  "Gracias por hacer mi vida más bonita.",
+  "Contigo, cada momento importa."
+];
 
-    // --- BOTÓN DE MÚSICA ---
-    let musicaPausada = false;
-    musicBtn.addEventListener('click', () => {
-      if (musicaPausada) {
-        musica.play();
-        musicBtn.textContent = '🔊';
-      } else {
-        musica.pause();
-        musicBtn.textContent = '🔇';
-      }
-      musicaPausada = !musicaPausada;
-    });
+let recuerdos = JSON.parse(localStorage.getItem('recuerdos')) || [];
+const timeline = document.getElementById('timeline');
+const modal = document.getElementById('modal');
 
-    // --- CORAZONES ---
-    function generarCorazones() {
-      setInterval(() => {
-        const corazon = document.createElement('div');
-        corazon.classList.add('corazon');
-        corazon.innerHTML = '💖';
-        corazon.style.left = Math.random() * 100 + 'vw';
-        corazon.style.animationDuration = (4 + Math.random() * 3) + 's';
-        document.body.appendChild(corazon);
-        setTimeout(() => corazon.remove(), 7000);
-      }, 500);
-    }
+/* -------------------------
+  WELCOME: typing + entrada
+------------------------- */
+const typedEl = document.getElementById('typed');
+const welcomeText = "Bienvenido a nuestro rincón de recuerdos 💞\n\nIngresa el código para entrar:";
+let idx = 0;
+function typeWriter(){
+  if(idx < welcomeText.length){
+    typedEl.textContent += welcomeText.charAt(idx);
+    idx++;
+    setTimeout(typeWriter, 28);
+  }
+}
+typeWriter();
 
-    // --- ÁLBUM DE RECUERDOS ---
-    const fileInput = document.getElementById('fileInput');
-    const descInput = document.getElementById('descInput');
-    const saveBtn = document.getElementById('saveBtn');
-    const gallery = document.getElementById('gallery');
-    const exportBtn = document.getElementById('exportBtn');
+document.getElementById('btnEnter').addEventListener('click', enterSite);
+document.getElementById('clave').addEventListener('keypress', e => { if(e.key==='Enter') enterSite(); });
 
-    const recuerdos = JSON.parse(localStorage.getItem('recuerdos')) || [];
+function enterSite(){
+  const clave = document.getElementById('clave').value || '';
+  if(clave.trim() === '03-09-25' || clave.trim() === ''){
+    document.getElementById('welcome').style.display = 'none';
+    document.getElementById('mainContent').style.display = 'block';
+    document.getElementById('mainContent').setAttribute('aria-hidden','false');
+    mostrarFrase();
+    aplicarTemaSegunHora();
+    initHearts();
     mostrarRecuerdos();
+  } else {
+    alert('Código incorrecto 💔');
+  }
+}
 
-    saveBtn.addEventListener('click', () => {
-      const file = fileInput.files[0];
-      const desc = descInput.value.trim();
-      if (!file && !desc) return alert('Agrega una descripción o una imagen/video.');
+/* -------------------------
+  Frase aleatoria
+------------------------- */
+function mostrarFrase(){
+  const f = frases[Math.floor(Math.random()*frases.length)];
+  document.getElementById('fraseTop').textContent = f;
+}
 
-      if (!file) {
-        recuerdos.unshift({ id: Date.now(), url: '', type: 'text', desc });
-        localStorage.setItem('recuerdos', JSON.stringify(recuerdos));
-        mostrarRecuerdos();
-        descInput.value = '';
-        return;
-      }
+/* -------------------------
+  Tema según hora y toggle
+------------------------- */
+function aplicarTemaSegunHora(){
+  const h = new Date().getHours();
+  if(h >= 19 || h < 6) document.body.classList.add('dark');
+}
+document.getElementById('themeBtn').addEventListener('click', () => {
+  document.body.classList.toggle('dark');
+});
 
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const data = {
-          id: Date.now(),
-          url: e.target.result,
-          type: file.type.startsWith('video') ? 'video' : 'image',
-          desc
-        };
-        recuerdos.unshift(data);
-        localStorage.setItem('recuerdos', JSON.stringify(recuerdos));
-        mostrarRecuerdos();
-        descInput.value = '';
-        fileInput.value = '';
+/* -------------------------
+  Guardar / Export / Backup automático
+------------------------- */
+const fileInput = document.getElementById('fileInput');
+const descInput = document.getElementById('descInput');
+const saveBtn = document.getElementById('saveBtn');
+const exportBtn = document.getElementById('exportBtn');
+const newLetterBtn = document.getElementById('newLetterBtn');
+
+saveBtn.addEventListener('click', () => {
+  const file = fileInput.files[0];
+  const desc = descInput.value.trim();
+
+  if(!file && !desc){
+    alert('Agrega una descripción o una imagen/video.');
+    return;
+  }
+
+  if(file){
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const data = {
+        id: Date.now(),
+        tipo: file.type.startsWith('video') ? 'video' : 'image',
+        url: e.target.result,
+        desc: desc,
+        fecha: new Date().toLocaleString(),
+        tipoItem: 'media'
       };
-      reader.readAsDataURL(file);
-    });
+      recuerdos.unshift(data);
+      persistAndRefresh(true);
+    };
+    reader.readAsDataURL(file);
+  } else {
+    // solo texto como mini-carta/nota
+    const data = {
+      id: Date.now(),
+      tipoItem: 'nota',
+      desc: desc,
+      fecha: new Date().toLocaleString()
+    };
+    recuerdos.unshift(data);
+    persistAndRefresh(true);
+  }
+});
 
-    function mostrarRecuerdos() {
-      gallery.innerHTML = '';
-      recuerdos.forEach(r => {
-        const card = document.createElement('div');
-        card.classList.add('card');
-        let media = '';
-        if (r.type === 'video') media = `<video controls src="${r.url}"></video>`;
-        else if (r.type === 'image') media = `<img src="${r.url}" alt="recuerdo">`;
+newLetterBtn.addEventListener('click', () => {
+  const texto = prompt('Escribe tu carta o nota (máx 5000 caracteres):');
+  if(texto && texto.trim()){
+    const data = {
+      id: Date.now(),
+      tipoItem: 'carta',
+      titulo: `Carta - ${new Date().toLocaleDateString()}`,
+      cuerpo: texto.trim(),
+      fecha: new Date().toLocaleString()
+    };
+    recuerdos.unshift(data);
+    persistAndRefresh(true);
+  }
+});
 
-        card.innerHTML = `
-          ${media}
-          <p>${r.desc}</p>
-          <button onclick="borrarRecuerdo(${r.id})">🗑️ Eliminar</button>
-        `;
-        gallery.appendChild(card);
-      });
+function persistAndRefresh(autoBackup=false){
+  localStorage.setItem('recuerdos', JSON.stringify(recuerdos));
+  mostrarRecuerdos();
+  descInput.value=''; fileInput.value='';
+  if(autoBackup) descargarBackup();
+}
+
+exportBtn.addEventListener('click', descargarBackup);
+
+function descargarBackup(){
+  const blob = new Blob([JSON.stringify(recuerdos, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `album_backup_${Date.now()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* -------------------------
+  Mostrar timeline + interacciones
+------------------------- */
+function mostrarRecuerdos(){
+  timeline.innerHTML = '';
+  if(recuerdos.length === 0){
+    timeline.innerHTML = `<div class="small" style="margin-left:48px">Aún no hay recuerdos — agrega tu primer recuerdo 💌</div>`;
+    return;
+  }
+  recuerdos.forEach(r => {
+    const el = document.createElement('div');
+    el.className = 'item';
+    let inner = '';
+    if(r.tipoItem === 'media'){
+      if(r.tipo === 'video') inner += `<video controls src="${r.url}"></video>`;
+      else inner += `<img src="${r.url}" alt="recuerdo">`;
+      inner += `<div class="meta"><div class="desc">${escapeHTML(r.desc||'')}</div><div class="fecha">${r.fecha}</div></div>`;
+    } else if(r.tipoItem === 'nota'){
+      inner += `<div class="meta"><div class="desc">${escapeHTML(r.desc||'')}</div><div class="fecha">${r.fecha}</div></div>`;
+    } else if(r.tipoItem === 'carta'){
+      inner += `<div class="meta"><div class="desc"><strong>${escapeHTML(r.titulo||'Carta')}</strong></div><div class="fecha">${r.fecha}</div></div>`;
+      inner += `<div style="margin-top:8px"><button class="secondary" onclick="abrirCarta(${r.id})">Abrir carta</button></div>`;
     }
+    inner += `<div style="margin-top:10px;display:flex;gap:8px;justify-content:flex-end"><button onclick="borrarRecuerdo(${r.id})">🗑️ Eliminar</button><button onclick="compartirRecuerdo(${r.id})" class="secondary">Compartir (export)</button></div>`;
+    el.innerHTML = inner;
+    timeline.appendChild(el);
+  });
+  observeItems(); // aplicar anims al aparecer
+}
 
-    window.borrarRecuerdo = function(id) {
-      const index = recuerdos.findIndex(r => r.id === id);
-      if (index !== -1) {
-        recuerdos.splice(index, 1);
-        localStorage.setItem('recuerdos', JSON.stringify(recuerdos));
-        mostrarRecuerdos();
-      }
-    }
+/* helper: safe text */
+function escapeHTML(s=''){ return String(s).replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-    exportBtn.addEventListener('click', () => {
-      const blob = new Blob([JSON.stringify(recuerdos)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'album_recuerdos.json';
-      a.click();
+/* borrar y compartir */
+function borrarRecuerdo(id){
+  if(!confirm('¿Eliminar este recuerdo?')) return;
+  recuerdos = recuerdos.filter(r => r.id !== id);
+  persistAndRefresh(false);
+}
+function compartirRecuerdo(id){
+  const r = recuerdos.find(x=>x.id===id);
+  if(!r) return alert('No encontrado.');
+  // export single
+  const blob = new Blob([JSON.stringify(r, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `recuerdo_${id}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* abrir carta en modal */
+window.abrirCarta = function(id){
+  const r = recuerdos.find(x=>x.id===id);
+  if(!r) return;
+  document.getElementById('modalTitle').textContent = r.titulo || 'Carta';
+  document.getElementById('modalBody').textContent = r.cuerpo || r.desc || '';
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden','false');
+}
+document.getElementById('closeModal').addEventListener('click', ()=>{ modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); });
+
+/* -------------------------
+  Animaciones al hacer scroll: IntersectionObserver
+------------------------- */
+function observeItems(){
+  const items = document.querySelectorAll('.item');
+  const obs = new IntersectionObserver((entries, o) => {
+    entries.forEach(en => {
+      if(en.isIntersecting){ en.target.classList.add('visible'); o.unobserve(en.target); }
     });
-  </script>
+  }, {threshold:0.12});
+  items.forEach(i => obs.observe(i));
+}
+observeItems();
+
+/* -------------------------
+  Surprise button animation
+------------------------- */
+const surpriseBtn = document.getElementById('sorpresaBtn');
+const surpriseEl = document.getElementById('surprise');
+surpriseBtn.addEventListener('click', ()=>{
+  document.getElementById('surpriseText').textContent = "Te extraño, ven pronto 💖";
+  surpriseEl.classList.add('show');
+  setTimeout(()=> surpriseEl.classList.remove('show'), 2600);
+});
+
+/* -------------------------
+  Hearts background (lightweight)
+------------------------- */
+function initHearts(){
+  const canvas = document.getElementById('corazones');
+  if(!canvas) return;
+  canvas.width = innerWidth; canvas.height = innerHeight;
+  const ctx = canvas.getContext('2d');
+  const hearts = [];
+  for(let i=0;i<26;i++){
+    hearts.push({
+      x: Math.random()*canvas.width,
+      y: Math.random()*canvas.height,
+      r: Math.random()*10+4,
+      s: Math.random()*0.6+0.2
+    });
+  }
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    hearts.forEach(h=>{
+      ctx.beginPath();
+      ctx.fillStyle = `rgba(255,105,180,${0.06 + h.s*0.4})`;
+      ctx.arc(h.x, h.y, h.r, 0, Math.PI*2);
+      ctx.fill();
+      h.y -= 0.3 + h.s;
+      if(h.y < -10) { h.y = canvas.height + 10; h.x = Math.random()*canvas.width; }
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+  window.addEventListener('resize', ()=>{ canvas.width = innerWidth; canvas.height = innerHeight; });
+}
+
+/* -------------------------
+  Small utilities & init
+------------------------- */
+function mostrarRecuerdosInicial(){
+  mostrarRecuerdos();
+}
+mostrarRecuerdosInicial();
+
+/* -------------------------
+  Extra: abrir modal on backdrop click to close
+------------------------- */
+modal.addEventListener('click', (e)=>{ if(e.target === modal) { modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); } });
+
+/* -------------------------
+  Optional: when user navigates away, persist state
+------------------------- */
+window.addEventListener('beforeunload', ()=> { localStorage.setItem('recuerdos', JSON.stringify(recuerdos)); });
+
+/* -------------------------
+  Extras: enter key for quick save (when focused)
+------------------------- */
+descInput.addEventListener('keypress', e => { if(e.key==='Enter' && (e.ctrlKey||e.metaKey)) saveBtn.click(); });
+
+</script>
 </body>
 </html>
