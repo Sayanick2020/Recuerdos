@@ -86,94 +86,75 @@
   <button id="exportBtn">Descargar álbum 📦</button>
 
 
-  <script>
-    const fileInput = document.getElementById('fileInput');
-    const descInput = document.getElementById('descInput');
-    const saveBtn = document.getElementById('saveBtn');
-    const gallery = document.getElementById('gallery');
+<script>
+  const fileInput = document.getElementById('fileInput');
+  const descInput = document.getElementById('descInput');
+  const saveBtn = document.getElementById('saveBtn');
+  const gallery = document.getElementById('gallery');
+  const exportBtn = document.getElementById('exportBtn');
 
-    // Cargar recuerdos guardados
-    const recuerdos = JSON.parse(localStorage.getItem('recuerdos')) || [];
-    mostrarRecuerdos();
+  // Cargar recuerdos guardados
+  const recuerdos = JSON.parse(localStorage.getItem('recuerdos')) || [];
+  mostrarRecuerdos();
 
-    saveBtn.addEventListener('click', () => {
-      const file = fileInput.files[0];
-      const desc = descInput.value.trim();
+  saveBtn.addEventListener('click', () => {
+    const file = fileInput.files[0];
+    const desc = descInput.value.trim();
 
-      if (!file) return alert('Selecciona una imagen o video.');
-      const reader = new FileReader();
+    if (!file && !desc) return alert('Agrega una descripción o una imagen/video.');
+    if (!file) return alert('Selecciona una imagen o video.');
 
-      reader.onload = (e) => {
-        const data = {
-          id: Date.now(),
-          url: e.target.result,
-          type: file.type.startsWith('video') ? 'video' : 'image',
-          desc: desc
-        };
-        recuerdos.unshift(data);
-        localStorage.setItem('recuerdos', JSON.stringify(recuerdos));
-        mostrarRecuerdos();
-        descInput.value = '';
-        fileInput.value = '';
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const data = {
+        id: Date.now(),
+        url: e.target.result,
+        type: file.type.startsWith('video') ? 'video' : 'image',
+        desc: desc
       };
-
-      reader.readAsDataURL(file);
-    });
-
-    function mostrarRecuerdos() {
-      gallery.innerHTML = '';
-      recuerdos.forEach(r => {
-        const card = document.createElement('div');
-        card.classList.add('card');
-        card.innerHTML = `
-          ${r.type === 'video'
-            ? `<video controls src="${r.url}"></video>`
-            : `<img src="${r.url}" alt="recuerdo">`}
-          <p>${r.desc}</p>
-        `;
-        gallery.appendChild(card);
-      });
-
-      function mostrarRecuerdos() {
-  gallery.innerHTML = '';
-  recuerdos.forEach(r => {
-    const card = document.createElement('div');
-    card.classList.add('card');
-    card.innerHTML = `
-      ${r.type === 'video'
-        ? `<video controls src="${r.url}"></video>`
-        : `<img src="${r.url}" alt="recuerdo">`}
-      <p>${r.desc}</p>
-      <button onclick="borrarRecuerdo(${r.id})">🗑️ Eliminar</button>
-    `;
-    gallery.appendChild(card);
+      recuerdos.unshift(data);
+      localStorage.setItem('recuerdos', JSON.stringify(recuerdos));
+      mostrarRecuerdos();
+      descInput.value = '';
+      fileInput.value = '';
+    };
+    reader.readAsDataURL(file);
   });
-}
 
-function borrarRecuerdo(id) {
-  const index = recuerdos.findIndex(r => r.id === id);
-  if (index !== -1) {
-    recuerdos.splice(index, 1);
-    localStorage.setItem('recuerdos', JSON.stringify(recuerdos));
-    mostrarRecuerdos();
+  function mostrarRecuerdos() {
+    gallery.innerHTML = '';
+    recuerdos.forEach(r => {
+      const card = document.createElement('div');
+      card.classList.add('card');
+      card.innerHTML = `
+        ${r.type === 'video'
+          ? `<video controls src="${r.url}"></video>`
+          : `<img src="${r.url}" alt="recuerdo">`}
+        <p>${r.desc}</p>
+        <button onclick="borrarRecuerdo(${r.id})">🗑️ Eliminar</button>
+      `;
+      gallery.appendChild(card);
+    });
   }
-}
 
-if (!desc && !file) return alert('Agrega una descripción o una imagen/video.');
-
-document.getElementById('exportBtn').addEventListener('click', () => {
-  const blob = new Blob([JSON.stringify(recuerdos)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'album_recuerdos.json';
-  a.click();
-});
-
-
+  function borrarRecuerdo(id) {
+    const index = recuerdos.findIndex(r => r.id === id);
+    if (index !== -1) {
+      recuerdos.splice(index, 1);
+      localStorage.setItem('recuerdos', JSON.stringify(recuerdos));
+      mostrarRecuerdos();
     }
-  </script>
-</body>
-</html>
+  }
 
+  exportBtn.addEventListener('click', () => {
+    const blob = new Blob([JSON.stringify(recuerdos)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'album_recuerdos.json';
+    a.click();
+  });
+</script>
+
+</body>
 </html>
