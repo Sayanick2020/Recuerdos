@@ -83,6 +83,9 @@
 
   <div class="gallery" id="gallery"></div>
 
+  <button id="exportBtn">Descargar álbum 📦</button>
+
+
   <script>
     const fileInput = document.getElementById('fileInput');
     const descInput = document.getElementById('descInput');
@@ -130,6 +133,44 @@
         `;
         gallery.appendChild(card);
       });
+
+      function mostrarRecuerdos() {
+  gallery.innerHTML = '';
+  recuerdos.forEach(r => {
+    const card = document.createElement('div');
+    card.classList.add('card');
+    card.innerHTML = `
+      ${r.type === 'video'
+        ? `<video controls src="${r.url}"></video>`
+        : `<img src="${r.url}" alt="recuerdo">`}
+      <p>${r.desc}</p>
+      <button onclick="borrarRecuerdo(${r.id})">🗑️ Eliminar</button>
+    `;
+    gallery.appendChild(card);
+  });
+}
+
+function borrarRecuerdo(id) {
+  const index = recuerdos.findIndex(r => r.id === id);
+  if (index !== -1) {
+    recuerdos.splice(index, 1);
+    localStorage.setItem('recuerdos', JSON.stringify(recuerdos));
+    mostrarRecuerdos();
+  }
+}
+
+if (!desc && !file) return alert('Agrega una descripción o una imagen/video.');
+
+document.getElementById('exportBtn').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(recuerdos)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'album_recuerdos.json';
+  a.click();
+});
+
+
     }
   </script>
 </body>
